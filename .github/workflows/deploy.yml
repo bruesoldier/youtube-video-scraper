@@ -10,50 +10,36 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
+      
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-
-      - name: Create React App Files
-        run: |
-          mkdir -p frontend/src
-          echo 'import React from "react"; import ReactDOM from "react-dom/client"; import App from "./App"; const root = ReactDOM.createRoot(document.getElementById("root")); root.render(<React.StrictMode><App /></React.StrictMode>);' > frontend/src/index.js
-          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>YouTube Scraper</title></head><body><div id="root"></div></body></html>' > frontend/public/index.html
-
+      
       - name: Install Dependencies
         working-directory: frontend
         run: |
-          npm init -y
-          npm install react react-dom react-scripts @mui/material @emotion/react @emotion/styled @mui/icons-material react-router-dom axios
-          echo '{ "name": "youtube-scraper-frontend", "version": "0.1.0", "private": true, "dependencies": { "@emotion/react": "^11.10.5", "@emotion/styled": "^11.10.5", "@mui/icons-material": "^5.11.0", "@mui/material": "^5.11.0", "@testing-library/jest-dom": "^5.16.5", "@testing-library/react": "^13.4.0", "@testing-library/user-event": "^13.5.0", "axios": "^1.2.1", "react": "^18.2.0", "react-dom": "^18.2.0", "react-router-dom": "^6.4.5", "react-scripts": "5.0.1", "web-vitals": "^2.1.4" }, "scripts": { "start": "react-scripts start", "build": "react-scripts build", "test": "react-scripts test", "eject": "react-scripts eject" }, "browserslist": { "production": [">0.2%", "not dead", "not op_mini all"], "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"] } }' > package.json
-
-      - name: Build React App
+          npm install
+      
+      - name: Build
         working-directory: frontend
         run: |
           npm run build
           cp build/index.html build/404.html
-
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/build
-
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
